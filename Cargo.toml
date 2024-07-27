@@ -1,0 +1,12 @@
+[package]
+name = "xilem-playground"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+xilem = { git = "https://github.com/linebender/xilem" }
+masonry = { git = "https://github.com/linebender/xilem" }
+tokio = { version = "*", features = ["sync"] }
+accesskit = "*"
+smallvec = "*"
+cpal = "0.15.3"
