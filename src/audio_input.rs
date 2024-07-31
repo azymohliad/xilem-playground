@@ -16,9 +16,10 @@ where
         .unwrap()
 }
 
-pub fn start_audio_input(sender: mpsc::Sender<Vec<f64>>) -> Result<cpal::platform::StreamInner> {
+pub fn start_audio_input(sender: mpsc::Sender<Vec<f64>>) -> Result<cpal::Stream> {
     let host = cpal::default_host();
-    let device = host.default_input_device()
+    let device = host
+        .default_input_device()
         .ok_or(anyhow!("Failed to get the default input device"))?;
 
     let config = device.default_input_config()?;
@@ -53,5 +54,5 @@ pub fn start_audio_input(sender: mpsc::Sender<Vec<f64>>) -> Result<cpal::platfor
     };
 
     stream.play()?;
-    Ok(stream.into_inner())
+    Ok(stream)
 }

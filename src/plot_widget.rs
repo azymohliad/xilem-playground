@@ -15,6 +15,7 @@ use std::sync::Arc;
 pub struct BarPlotWidget {
     pub data: Arc<Vec<f64>>,
     pub gap: f64,
+    pub range: Option<f64>,
     pub bg_brush: Arc<Brush>,
     pub fg_brush: Arc<Brush>,
 }
@@ -24,6 +25,7 @@ impl Default for BarPlotWidget {
         Self {
             data: Arc::new(Vec::new()),
             gap: 0.0,
+            range: None,
             bg_brush: Arc::new(Color::rgb8(0x20, 0x20, 0x20).into()),
             fg_brush: Arc::new(Color::rgb8(0xD0, 0xD0, 0xD0).into()),
         }
@@ -58,7 +60,10 @@ impl Widget for BarPlotWidget {
 
     fn paint(&mut self, ctx: &mut PaintCtx, scene: &mut Scene) {
         let size = ctx.size();
-        let dy = size.height / self.data.iter().copied().reduce(f64::max).unwrap_or(1.0);
+        let range = self
+            .range
+            .unwrap_or_else(|| self.data.iter().copied().reduce(f64::max).unwrap_or(1.0));
+        let dy = size.height / range;
         let dx = size.width / self.data.len() as f64;
 
         scene.fill(
@@ -69,7 +74,7 @@ impl Widget for BarPlotWidget {
             &size.to_rect(),
         );
         for (i, &v) in self.data.iter().enumerate() {
-            let p1 = Point::new(dx * (i as f64 + 0.5), size.height - v * dy);
+            let p1 = Point::new(dx * (i as f64 + 0.5), (size.height - v * dy).max(0.));
             let p2 = Point::new(p1.x, size.height);
             scene.stroke(
                 &Stroke::new(1.0f64.max(dx - self.gap)).with_caps(Cap::Butt),

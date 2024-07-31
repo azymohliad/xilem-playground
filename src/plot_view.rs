@@ -10,6 +10,7 @@ pub fn bar_plot(data: impl Into<Arc<Vec<f64>>>) -> BarPlot {
     BarPlot {
         data: data.into(),
         gap: 0.0,
+        range: None,
         bg_brush: None,
         fg_brush: None,
     }
@@ -18,6 +19,7 @@ pub fn bar_plot(data: impl Into<Arc<Vec<f64>>>) -> BarPlot {
 pub struct BarPlot {
     data: Arc<Vec<f64>>,
     gap: f64,
+    range: Option<f64>,
     bg_brush: Option<Arc<Brush>>,
     fg_brush: Option<Arc<Brush>>,
 }
@@ -25,6 +27,11 @@ pub struct BarPlot {
 impl BarPlot {
     pub fn gap(mut self, gap: f64) -> Self {
         self.gap = gap;
+        self
+    }
+
+    pub fn range(mut self, range: f64) -> Self {
+        self.range = Some(range);
         self
     }
 
@@ -47,6 +54,7 @@ impl<State, Action> View<State, Action, ViewCtx> for BarPlot {
         let mut widget = BarPlotWidget {
             data: self.data.clone(),
             gap: self.gap,
+            range: self.range,
             ..Default::default()
         };
         if let Some(brush) = &self.bg_brush {
