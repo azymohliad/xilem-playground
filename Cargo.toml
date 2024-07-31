@@ -10,3 +10,4 @@ tokio = { version = "*", features = ["sync"] }
 accesskit = "*"
 smallvec = "*"
 cpal = "0.15.3"
+anyhow = "1.0.86"
