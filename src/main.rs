@@ -1,6 +1,7 @@
 mod audio_input;
 mod plot_view;
 mod plot_widget;
+mod util;
 
 use audio_input::run_audio_session;
 use masonry::{vello::peniko::Gradient, Point};
@@ -38,7 +39,8 @@ fn app_logic(data: &mut AppData) -> impl WidgetView<AppData> {
         async_repeat(
             |proxy| async move {
                 let (tx, mut rx) = mpsc::channel(8);
-                thread::spawn(|| run_audio_session(tx).unwrap());
+                let handle = thread::spawn(|| run_audio_session(tx).unwrap());
+                let _guard = util::Defer::new(|| handle.thread().unpark());
                 while let Some(samples) = rx.recv().await {
                     if proxy.message(samples).is_err() {
                         break;
