@@ -2,10 +2,10 @@ mod audio_input;
 mod plot_view;
 mod plot_widget;
 
-use audio_input::start_audio_input;
+use audio_input::run_audio_session;
 use masonry::{vello::peniko::Gradient, Point};
 use plot_view::bar_plot;
-use std::sync::Arc;
+use std::{thread, sync::Arc};
 use xilem::{
     core::fork, tokio::sync::mpsc, view::async_repeat, Color, EventLoop, WidgetView, Xilem,
 };
@@ -38,11 +38,10 @@ fn app_logic(data: &mut AppData) -> impl WidgetView<AppData> {
         async_repeat(
             |proxy| async move {
                 let (tx, mut rx) = mpsc::channel(8);
-                if let Ok(_stream) = start_audio_input(tx).map(|s| s.into_inner()) {
-                    while let Some(samples) = rx.recv().await {
-                        if proxy.message(samples).is_err() {
-                            break;
-                        }
+                thread::spawn(|| run_audio_session(tx).unwrap());
+                while let Some(samples) = rx.recv().await {
+                    if proxy.message(samples).is_err() {
+                        break;
                     }
                 }
             },

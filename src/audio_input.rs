@@ -16,7 +16,7 @@ where
         .unwrap()
 }
 
-pub fn start_audio_input(sender: mpsc::Sender<Vec<f64>>) -> Result<cpal::Stream> {
+pub fn run_audio_session(sender: mpsc::Sender<Vec<f64>>) -> Result<()> {
     let host = cpal::default_host();
     let device = host
         .default_input_device()
@@ -54,5 +54,8 @@ pub fn start_audio_input(sender: mpsc::Sender<Vec<f64>>) -> Result<cpal::Stream>
     };
 
     stream.play()?;
-    Ok(stream)
+
+    // TODO: Process control messages
+    std::thread::park();
+    Ok(())
 }
